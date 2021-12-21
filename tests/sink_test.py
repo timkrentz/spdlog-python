@@ -30,38 +30,31 @@ logger = spdlog.SinkLogger("Hello", sinks)
 #
 
 def tcp_log(log_msg, level):
-    msg = log_capnp.LogMsg.new_message()
-    msg.message = log_msg
-    msg.time = time.time()
-    msg_bytes = msg.to_bytes()
-
+    # Using capnp for serialization
+    # and augment capnp message with length within python.
+    # No longer required.
+    # msg = log_capnp.LogMsg.new_message()
+    # msg.message = log_msg
+    # msg.time = time.time()
+    # msg_bytes = msg.to_bytes()
     # length = len(msg)
     # aug_msg = f"{struct.pack('i', length)}{msg}"
     # aug_msg = f"{length}{msg}"
-    logger.set_pattern("%v")
-    # jsonpattern = "{\"time\": \"%E\", " \
-    #               "\"name\": \"%n\", " \
-    #               "\"level\": \"%^%l%$\", " \
-    #               "\"process\": %P," \
-    #               "\"thread\": %t, " \
-    #               "\"message\": \"%v\"}"
-    # logger.set_pattern(jsonpattern)
-    getattr(logger, level)(msg_bytes)
+    # logger.set_pattern("%v")
+    # getattr(logger, level)(aug_msg)
+
+    jsonpattern = "{\"time\": \"%E\", " \
+                  "\"name\": \"%n\", " \
+                  "\"level\": \"%^%l%$\", " \
+                  "\"process\": %P," \
+                  "\"thread\": %t, " \
+                  "\"message\": \"%v\"}"
+    logger.set_pattern(jsonpattern)
+    getattr(logger, level)(log_msg)
+
+    # logger.set_pattern("%v")
+    # getattr(logger, level)(log_msg)
 
 
-tcp_log("test", "info")
+tcp_log("test2", "info")
 
-# logger.info("hemlo")
-
-#
-# # Set up the opening brace and an array named "log"
-# # we're setting a global format here but as per the docs you can set this on an individual log as well
-#
-# spdlog::set_pattern(set_pattern("{\n \"log\": [");
-# auto mylogger = spdlog::basic_logger_mt("json_logger", "mylog.json");
-# mylogger->info("");//this initializes the log file with the opening brace and the "log" array as above
-# # We have some extra formatting on the log level %l below to keep color coding when dumping json to the console and we use a full ISO 8601 time/date format
-# std::string jsonpattern = {"{\"time\": \"%Y-%m-%dT%H:%M:%S.%f%z\", \"name\": \"%n\", \"level\": \"%^%l%$\", \"process\": %P, \"thread\": %t, \"message\": \"%v\"},"};
-# spdlog::set_pattern(jsonpattern);
-#
-# logger.info(msg_bytes)

@@ -14,23 +14,22 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         # self.request is the TCP socket connected to the client
-        # self.data = self.request.recv(1024).strip()
-
-        # header = self.request.recv(1)
-        # length = struct.unpack("i", header)
-        # print(f"header: {header}")
-        # msg = self.request.recv(length)
-        # print(f"log msg: {msg}")
 
         header = self.request.recv(8)
+        print(f"header: {header}")
+        length = int(header)
+        msg = self.request.recv(length)
+        print(f"log msg: {msg}")
 
-        length = struct.unpack("ii", header)[1]
-        print(f"length: {length}")
-
-        data = self.request.recv(8*length)
-
-        msg = log_capnp.LogMsg.from_bytes(header+data)
-        print(f"log msg: {msg.message}")
+        # header = self.request.recv(8)
+        #
+        # length = struct.unpack("ii", header)[1]
+        # print(f"length: {length}")
+        #
+        # data = self.request.recv(8*length)
+        #
+        # msg = log_capnp.LogMsg.from_bytes(header+data)
+        # print(f"log msg: {msg.message}")
 
         # print("{} wrote:".format(self.client_address[0]))
 
