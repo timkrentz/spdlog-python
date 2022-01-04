@@ -20,6 +20,7 @@ using namespace pybind11::literals;
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/sinks/tcp_sink.h>
+#include <spdlog/sinks/tcpp_sink.h>
 #ifndef _WIN32
 #include <spdlog/sinks/syslog_sink.h>
 #endif
@@ -270,6 +271,28 @@ public:
         tcp_config.lazy_connect = lazy_connect;
 
         _sink = std::make_shared<spdlog::sinks::tcp_sink_mt>(tcp_config);
+    }
+};
+
+class tcpp_sink_st : public Sink {
+public:
+    tcpp_sink_st(std::string server_host, int server_port, bool lazy_connect)
+    {
+        struct spdlog::sinks::tcpp_sink_config tcp_config(server_host, server_port);
+        tcp_config.lazy_connect = lazy_connect;
+
+        _sink = std::make_shared<spdlog::sinks::tcpp_sink_st>(tcp_config);
+    }
+};
+
+class tcpp_sink_mt : public Sink {
+public:
+    tcpp_sink_mt(std::string server_host, int server_port, bool lazy_connect)
+    {
+        struct spdlog::sinks::tcpp_sink_config tcp_config(server_host, server_port);
+        tcp_config.lazy_connect = lazy_connect;
+
+        _sink = std::make_shared<spdlog::sinks::tcpp_sink_mt>(tcp_config);
     }
 };
 
