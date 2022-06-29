@@ -20,7 +20,6 @@ using namespace pybind11::literals;
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/sinks/tcp_sink.h>
-#include <spdlog/sinks/tcpp_sink.h>
 #ifndef _WIN32
 #include <spdlog/sinks/syslog_sink.h>
 #endif
@@ -274,33 +273,11 @@ public:
     }
 };
 
-class tcpp_sink_st : public Sink {
-public:
-    tcpp_sink_st(std::string server_host, int server_port, bool lazy_connect)
-    {
-        struct spdlog::sinks::tcpp_sink_config tcp_config(server_host, server_port);
-        tcp_config.lazy_connect = lazy_connect;
-
-        _sink = std::make_shared<spdlog::sinks::tcpp_sink_st>(tcp_config);
-    }
-};
-
-class tcpp_sink_mt : public Sink {
-public:
-    tcpp_sink_mt(std::string server_host, int server_port, bool lazy_connect)
-    {
-        struct spdlog::sinks::tcpp_sink_config tcp_config(server_host, server_port);
-        tcp_config.lazy_connect = lazy_connect;
-
-        _sink = std::make_shared<spdlog::sinks::tcpp_sink_mt>(tcp_config);
-    }
-};
-
 
 #ifdef SPDLOG_ENABLE_SYSLOG
 class syslog_sink_st : public Sink {
 public:
-    syslog_sink_st(const std::string& ident = "", int syslog_option = 0, int syslog_facility = (1 << 3), bool enable_formatting = false)
+    syslog_sink_st(const std::string& ident = "", int syslog_option = 0, int syslog_facility = (1 << 3), bool enable_formatting = true)
     {
         _sink = std::make_shared<spdlog::sinks::syslog_sink_st>(ident, syslog_option, syslog_facility, enable_formatting);
     }
@@ -308,7 +285,7 @@ public:
 
 class syslog_sink_mt : public Sink {
 public:
-    syslog_sink_mt(const std::string& ident = "", int syslog_option = 0, int syslog_facility = (1 << 3), bool enable_formatting = false)
+    syslog_sink_mt(const std::string& ident = "", int syslog_option = 0, int syslog_facility = (1 << 3), bool enable_formatting = true)
     {
         _sink = std::make_shared<spdlog::sinks::syslog_sink_mt>(ident, syslog_option, syslog_facility, enable_formatting);
     }
@@ -398,11 +375,6 @@ public:
     {
         _logger->set_error_handler(handler);
     }
-
-//    spd::err_handler error_handler()
-//    {
-//        return _logger->error_handler();
-//    }
 
     std::shared_ptr<spdlog::logger> get_underlying_logger() {
         return _logger;
@@ -844,7 +816,6 @@ PYBIND11_MODULE(spdlog, m)
         .def("async_mode", &Logger::async)
         .def("sinks", &Logger::sinks)
         .def("set_error_handler", &Logger::set_error_handler)
-//        .def("error_handler", &Logger::error_handler)
         .def("get_underlying_logger", &Logger::get_underlying_logger);
 
     py::class_<SinkLogger, Logger>(m, "SinkLogger")
@@ -913,15 +884,17 @@ py::class_<DailyLogger, Logger>(m, "DailyLogger")
 //SyslogLogger(const std::string& logger_name, const std::string& ident = "", int syslog_option = 0, int syslog_facilty = (1<<3))
 #ifdef SPDLOG_ENABLE_SYSLOG
 py::class_<syslog_sink_st, Sink>(m, "syslog_sink_st")
-    .def(py::init<std::string, int, int>(),
+    .def(py::init<std::string, int, int, bool>(),
         py::arg("ident") = "",
         py::arg("syslog_option") = 0,
-        py::arg("syslog_facility") = (1 << 3));
+        py::arg("syslog_facility") = (1 << 3),
+        py::arg("enable_formatting") = true);
 py::class_<syslog_sink_mt, Sink>(m, "syslog_sink_mt")
-    .def(py::init<std::string, int, int>(),
+    .def(py::init<std::string, int, int, bool>(),
         py::arg("ident") = "",
         py::arg("syslog_option") = 0,
-            py::arg("syslog_facility") = (1 << 3));
+        py::arg("syslog_facility") = (1 << 3),
+        py::arg("enable_formatting") = true);
     py::class_<SyslogLogger, Logger>(m, "SyslogLogger")
         .def(py::init<std::string, bool, std::string, int, int>(),
             py::arg("name"),
