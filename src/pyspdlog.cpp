@@ -2,7 +2,6 @@
 #define SPDLOG_ENABLE_SYSLOG
 #endif
 
-
 #include <pybind11/complex.h>
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
@@ -273,7 +272,6 @@ public:
         _sink = std::make_shared<spdlog::sinks::tcp_sink_mt>(tcp_config);
     }
 };
-
 
 #ifdef SPDLOG_ENABLE_SYSLOG
 class syslog_sink_st : public Sink {
